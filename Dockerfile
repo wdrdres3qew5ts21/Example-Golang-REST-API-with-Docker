@@ -1,7 +1,5 @@
 from golang:1.8-alpine
 WORKDIR /go/src/app
 run apk update && apk add git
-COPY . .
-RUN go get -d -v ./...
-RUN go install -v ./...
-CMD ["app"]
+COPY app .
+CMD ["./app"]
