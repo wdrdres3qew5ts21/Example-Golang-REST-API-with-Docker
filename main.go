@@ -3,11 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/go-redis/redis"
 	"github.com/gorilla/mux"
 )
 
@@ -40,7 +38,6 @@ func getProductById(w http.ResponseWriter, r *http.Request) {
 func getAllProductList(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.URL.Query())
 	fmt.Println(r.URL.Path)
-	fmt.Println(redisClient.Get("name"))
 	json.NewEncoder(w).Encode(productList)
 }
 
@@ -60,55 +57,15 @@ func deleteProductsById(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func getVistedTime(w http.ResponseWriter, r *http.Request) {
-	redisClient.Set("name", "supakorn", 0)
-	name, _ := redisClient.Get("name").Result()
-	totalVisiting, _ := redisClient.Get("totalVisiting").Result()
-	test := map[string]string{
-		"name":          name,
-		"totalVisiting": totalVisiting,
-	}
-	json.NewEncoder(w).Encode(test)
-}
-
-var redisClient = connectToRedis()
-
 func main() {
 	loadProductServer()
-	redisClient.Set("totalVisiting", 0, 0)
 	router := mux.NewRouter()
-	router.Use(loggingVistitor)
 	router.HandleFunc("/product", addProduct).Methods("POST")
 	router.HandleFunc("/products", getAllProductList).Methods("GET")
 	router.HandleFunc("/product/{productId}", getProductById).Methods("GET")
 	router.HandleFunc("/product/{productId}", deleteProductsById).Methods("DELETE")
-	router.HandleFunc("/status", getVistedTime).Methods("GET")
 	fmt.Println("----- Product Server X Golang ------")
 	http.ListenAndServe(":3000", router)
-}
-
-func loggingVistitor(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Do stuff here
-		log.Println(r.RequestURI)
-		totalVisiting, _ := redisClient.Get("totalVisiting").Result()
-		totalVisitingInt, _ := strconv.ParseInt(totalVisiting, 10, 64)
-		totalVisitingInt = totalVisitingInt + 1
-		redisClient.Set("totalVisiting", totalVisitingInt, 0)
-		// Call the next handler, which can be another middleware in the chain, or the final handler.
-		next.ServeHTTP(w, r)
-	})
-}
-
-func connectToRedis() *redis.Client {
-	client := redis.NewClient(&redis.Options{
-		Addr: "redis-server:6379",
-	})
-	_, err := client.Ping().Result()
-	if err != nil {
-		panic(err)
-	}
-	return client
 }
 
 func loadProductServer() {
