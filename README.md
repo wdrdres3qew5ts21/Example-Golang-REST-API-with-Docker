@@ -2,7 +2,7 @@
  Golang REST API with CRUD operation also deploy with Docker example for helloworld
  
 
-![alt text](https://imgur.com/iuEgizQ)
+![alt text](https://i.imgur.com/iuEgizQ.png)
 Slide แบบมีเนื้อหา Comment  (ไทย - อังกฤษ)
 https://docs.google.com/presentation/d/1cEOWr6_TAGgSxUpCA1dP6ffXqtStwKMHixjkJ3Bmzvw/edit?usp=sharing
 
